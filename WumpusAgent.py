@@ -1,4 +1,4 @@
-#Wumpus Agent.
+#Wumpus Agent
 
 class Agent(object):
     def __init__(self, x= '',y= '' ):
