@@ -66,7 +66,7 @@ def getMove(sensor):
             move = 'S'
             moves.append(move)
             return move
-        elif p != 'U'and up == True: #by default move south
+        elif p != 'U'and up == True: #move north
             move = 'N'
             moves.append(move)
             return move
