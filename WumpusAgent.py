@@ -41,7 +41,7 @@ gameType = 0
 numArrows = 0
 numWumpi = 0
 up_down = 0 #going down by default
-
+moves #list of all made moves by the agent
 
 
 #sets the type of wumpi (moving/stationary), # of arrows, and # of wumpi
@@ -59,7 +59,15 @@ def setParams(type, arrows, wumpi):
 #logic: Learning the board left to right while scanning up and down the y axis until bottom/top right corner is reached
 def getMove(sensor):
     percepts = sensor #list of percepts that needs to be parsed
+      
+    for p in percepts:
+        if p != 'U':
+            return 'S'
 
+        
+
+
+        
 
 #if sensor is clear in desired direction, move to desired square and return this, otherwise send to appropriate danger function (what about percepts that don't matter? i.e wumpus to the right, but we are moving down)
 #if we reach bottom, move right once, change up_down to up (1)
