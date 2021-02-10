@@ -40,7 +40,8 @@ map = [] #currently 1d, needs to be 2d possibly?
 gameType = 0
 numArrows = 0
 numWumpi = 0
-up = False #going down by default
+up = False #going down or south by default
+left= False: #moving right or west by default
 moves = [] #list of all made moves by the agent
 
 
@@ -52,8 +53,11 @@ def setParams(type, arrows, wumpi):
     return 0
 
 
-
-
+def eastOrWest(east):#tells move functions whether to move east or west based off of the status of the left variable
+    if(east):
+        return 'E'
+    else:
+        return 'W'
 
 #MAIN MOVEMENT FUNCTION
 #logic: Learning the board left to right while scanning up and down the y axis until bottom/top right corner is reached
@@ -61,15 +65,20 @@ def getMove(sensor):
     percepts = sensor #list of percepts that needs to be parsed
     move = ''#move performed by the agent this turn
 
-    for p in percepts: #read in that we havent hit a wall, so agent moves south and the move is added to our moves list
-        if p != 'U'and up != True: #by default move south
+    for p in percepts: 
+        if p != 'U'and up != True: #bumpcheck clear and up not true so move south or down
             move = 'S'
             moves.append(move)
             return move
-        elif p != 'U'and up == True: #move north
+        elif p != 'U'and up == True: #move north if bumpcheck is false
             move = 'N'
             moves.append(move)
             return move
+        elif p == 'U'and up == True: #move horizontally because we have hit the top of the cave
+            move = eastOrWest(left)
+            moves.append(move)
+            return move
+        
 
         
 
