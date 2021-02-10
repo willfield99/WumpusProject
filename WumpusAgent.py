@@ -41,7 +41,7 @@ gameType = 0
 numArrows = 0
 numWumpi = 0
 up_down = 0 #going down by default
-moves #list of all made moves by the agent
+moves = [] #list of all made moves by the agent
 
 
 #sets the type of wumpi (moving/stationary), # of arrows, and # of wumpi
