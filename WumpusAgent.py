@@ -40,7 +40,7 @@ map = [] #currently 1d, needs to be 2d possibly?
 gameType = 0
 numArrows = 0
 numWumpi = 0
-up_down = 0 #going down by default
+up = False #going down by default
 moves = [] #list of all made moves by the agent
 
 
@@ -59,10 +59,17 @@ def setParams(type, arrows, wumpi):
 #logic: Learning the board left to right while scanning up and down the y axis until bottom/top right corner is reached
 def getMove(sensor):
     percepts = sensor #list of percepts that needs to be parsed
-      
-    for p in percepts:
-        if p != 'U':
-            return 'S'
+    move = ''#move performed by the agent this turn
+
+    for p in percepts: #read in that we havent hit a wall, so agent moves south and the move is added to our moves list
+        if p != 'U'and up != True: #by default move south
+            move = 'S'
+            moves.append(move)
+            return move
+        elif p != 'U'and up == True: #by default move south
+            move = 'N'
+            moves.append(move)
+            return move
 
         
 
