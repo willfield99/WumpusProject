@@ -30,7 +30,7 @@
  #SW - shoot west
  #G - grab gold
  #C - climb out 
-
+#
 
 
 #--------------------------
