@@ -31,7 +31,7 @@
  #G - grab gold
  #C - climb out 
 #
-
+import HuntTheWumpus
 
 #--------------------------
 #globals
@@ -43,6 +43,7 @@ numWumpi = 0
 up = False #going down or south by default
 left= False: #moving right or west by default
 moves = [] #list of all made moves by the agent
+htw = HuntTheWumpus()
 
 
 #sets the type of wumpi (moving/stationary), # of arrows, and # of wumpi
@@ -101,7 +102,19 @@ def pit():
 
 
 #In the case of a wumpus, mmain movement function sends us here in order to try and kill it.
-def wumpus():
+def wumpus(numArrows):
+    if numArrows > 0:
+        numArrows = numArrows- 1
+        kill = htw.screamCheck(htw.playerx, htw.playery, htw.l, 'n')
+    if not kill and numArrows > 0:
+        numArrows = numArrows- 1
+        kill = htw.screamCheck(htw.playerx, htw.playery, htw.l, 'e')
+    if not kill and numArrows > 0:
+        numArrows = numArrows- 1
+        kill = htw.screamCheck(htw.playerx, htw.playery, htw.l, 's')
+    if not kill and numArrows > 0:
+        numArrows = numArrows- 1
+        kill = htw.screamCheck(htw.playerx, htw.playery, htw.l, 'w')
     return 0
 
 
