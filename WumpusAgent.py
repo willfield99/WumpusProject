@@ -60,6 +60,19 @@ def eastOrWest(east):#tells move functions whether to move east or west based of
     else:
         return 'W'
 
+def northOrSouth(north):#checks if agent is moving north or south
+    if(north):
+        return 'N'
+    else:
+        return 'S'
+
+def vertical(s): #chekcs if last move was vertical. if it was not then its horizontal
+    if s == 'N' or s == 'S':
+        return True
+    elif s == 'E' or s == 'W':
+        return False
+
+
 #MAIN MOVEMENT FUNCTION
 #logic: Learning the board left to right while scanning up and down the y axis until bottom/top right corner is reached
 def getMove(sensor):
@@ -67,18 +80,22 @@ def getMove(sensor):
     move = ''#move performed by the agent this turn
 
     for p in percepts: 
-        if p != 'U'and up != True: #bumpcheck clear and up not true so move south or down
-            move = 'S'
+        if p != 'U': #bumpcheck clear, move vertically and add move to moves list
+            move = northOrSouth(up)
             moves.append(move)
             return move
-        elif p != 'U'and up == True: #move north if bumpcheck is false
-            move = 'N'
-            moves.append(move)
-            return move
-        elif p == 'U'and up == True: #move horizontally because we have hit the top of the cave
+        
+        elif p == 'U' and vertical(moves[-1]): #move horizontally because we have hit the top or bottom of cave
             move = eastOrWest(left)
+            up = not up
             moves.append(move)
             return move
+
+        elif p == 'U' and not vertical(moves[-1]): #move vertically because we have just moved one space horizontally after hitting the top or bottom of cave
+            move = northOrSouth(up)
+            moves.append(move)
+            return move
+        
         
 
         
