@@ -44,6 +44,7 @@ up = False #going down or south by default
 left= False: #moving right or west by default
 moves = [] #list of all made moves by the agent
 htw = HuntTheWumpus()
+shootcount = 0 
 
 
 #sets the type of wumpi (moving/stationary), # of arrows, and # of wumpi
@@ -80,7 +81,17 @@ def getMove(sensor):
     move = ''#move performed by the agent this turn
 
     for p in percepts: 
-        if p != 'U': #bumpcheck clear, move vertically and add move to moves list
+        
+        #if p == 'G':
+            
+        if p == 'S':#if there is a wumpus in an adjacent square
+            shootcount = shootcount + 1#add to shootcount for each shot
+            return wumpus(numArrows, shootcount)
+
+        elif p == 'C':#if wumpus is hit then reset shootcount
+            shootcount = 0
+
+        elif p != 'U': #bumpcheck clear, move vertically and add move to moves list
             move = northOrSouth(up)
             moves.append(move)
             return move
@@ -95,8 +106,14 @@ def getMove(sensor):
             move = northOrSouth(up)
             moves.append(move)
             return move
+
+        #not sure how we can tell that we
+
+
+        #may need more movement commands 
+
         
-        
+             
 
         
 
@@ -119,22 +136,25 @@ def pit():
 
 
 #In the case of a wumpus, mmain movement function sends us here in order to try and kill it.
-def wumpus(numArrows):
-    if numArrows > 0:
+def wumpus(numArrows, count):
+    
+    if numArrows > 0 and count == 0:
         numArrows = numArrows- 1
-        kill = htw.screamCheck(htw.playerx, htw.playery, htw.l, 'n')
-    if not kill and numArrows > 0:
+        return('SN')
+    if numArrows > 0 and count == 1:
         numArrows = numArrows- 1
-        kill = htw.screamCheck(htw.playerx, htw.playery, htw.l, 'e')
-    if not kill and numArrows > 0:
+        return('SE')
+    if numArrows > 0 and count == 2:
         numArrows = numArrows- 1
-        kill = htw.screamCheck(htw.playerx, htw.playery, htw.l, 's')
-    if not kill and numArrows > 0:
+        return('SS')
+    if numArrows > 0 and count == 3:
         numArrows = numArrows- 1
-        kill = htw.screamCheck(htw.playerx, htw.playery, htw.l, 'w')
-    return 0
-
-
+        return('SW')
+    else:
+        print('Error in WumpasAgent.wumpus()')
+        return ''
+    
+    
 
 
 def escape():
