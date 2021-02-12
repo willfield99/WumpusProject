@@ -44,7 +44,8 @@ up = False #going down or south by default
 left= False: #moving right or west by default
 moves = [] #list of all made moves by the agent
 htw = HuntTheWumpus()
-shootcount = 0 
+shootcount = 0
+possiblecorner = false# used to check if we have reached a coerner of the cave. If bumpcheck is true, then possibleCorner is set true. if on the next turn bumpcheck is true again, then we have hit a corner
 
 
 #sets the type of wumpi (moving/stationary), # of arrows, and # of wumpi
@@ -92,6 +93,7 @@ def getMove(sensor):
             shootcount = 0
 
         elif p != 'U': #bumpcheck clear, move vertically and add move to moves list
+            posssibleCorner= False
             move = northOrSouth(up)
             moves.append(move)
             return move
@@ -102,12 +104,17 @@ def getMove(sensor):
             moves.append(move)
             return move
 
-        elif p == 'U' and not vertical(moves[-1]): #move vertically because we have just moved one space horizontally after hitting the top or bottom of cave
+        elif p == 'U' and possiblecorner:#if we have hit a corner, switch horizontal direction, call escape
+            possiblecorner == False
+            eastOrWest = not eastOrWest
+            return escape()
+
+        elif p == 'U' and not vertical(moves[-1]): #move vertically because we have just moved one space horizontally after hitting the side of cave
             move = northOrSouth(up)
             moves.append(move)
             return move
-
-        #not sure how we can tell that we
+            
+        elif p == 'U' and 
 
 
         #may need more movement commands 
