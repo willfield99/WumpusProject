@@ -6,8 +6,6 @@
 #This agent aims to guide an explorer through a cave littered with pits and wumpi in search for endless riches
 #Takes in percepts from driver, returns appropriate action
 
-
-
 #For movement function recieve percepts (each defined)
 # Stench - the Wumpus is in a directly adjacent square (not diagonal).
 # Breeze - there is a pit in a directly adjacent square (not diagonal).
@@ -15,6 +13,7 @@
 # Bump - you walked in to a wall of the dungeon
 # Scream - the Wumpus was killed! 
 # S - stench
+# B - breeze
 # G - glitter
 # U - bump
 # C - scream 
@@ -47,6 +46,7 @@ htw = HuntTheWumpus()
 shootcount = 0
 possiblecorner = false# used to check if we have reached a coerner of the cave. If bumpcheck is true, then possibleCorner is set true. if on the next turn bumpcheck is true again, then we have hit a corner
 
+#adding comment to test github
 
 #sets the type of wumpi (moving/stationary), # of arrows, and # of wumpi
 def setParams(type, arrows, wumpi):
@@ -112,7 +112,7 @@ def getMove(sensor):
         elif p == 'U' and not vertical(moves[-1]): #move vertically because we have just moved one space horizontally after hitting the side of cave
             move = northOrSouth(up)
             moves.append(move)
-            return move
+            return move 
             
         elif p == 'U' and 
 
