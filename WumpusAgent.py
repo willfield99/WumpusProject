@@ -30,7 +30,7 @@
  #G - grab gold
  #C - climb out 
 #
-import HuntTheWumpus
+#import HuntTheWumpus        Had to comment this out because it caused the code to have an error (something to do with circular imports) - Mason
 
 #--------------------------
 #globals
@@ -40,20 +40,40 @@ gameType = 0
 numArrows = 0
 numWumpi = 0
 up = False #going down or south by default
-left= False: #moving right or west by default
+left = False #moving right or west by default
 moves = [] #list of all made moves by the agent
-htw = HuntTheWumpus()
+#htw = HuntTheWumpus()
 shootcount = 0
-possiblecorner = false# used to check if we have reached a coerner of the cave. If bumpcheck is true, then possibleCorner is set true. if on the next turn bumpcheck is true again, then we have hit a corner
+possiblecorner = False #used to check if we have reached a coerner of the cave. If bumpcheck is true, then possibleCorner is set true. if on the next turn bumpcheck is true again, then we have hit a corner
 
-#adding comment to test github
 
-#sets the type of wumpi (moving/stationary), # of arrows, and # of wumpi
+#sets the type of wumpi (moving/stationary), # of arrows, and # of wumpi: used for re-setting the game in the driver code
 def setParams(type, arrows, wumpi):
-    gameType = type
-    numArrows = arrows
-    numWumpi = wumpi
-    return 0
+
+    try: #Should check to make sure that the inputs for the parameters are valid (integers), turns out Alan took care of the int() 
+        gameType = int(type)
+    except ValueError:
+        gameType = 1
+        print("Game type invalid, defaulting to 1.")
+    
+    if gameType > 2 or gameType < 1:
+        gameType = 1
+        print("Game type invalid, defaulting to 1.")
+
+    try: 
+        numArrows = int(arrows)
+    except ValueError:
+        numArrows = 1
+        print("Number of arrows invalid, defaulting to 1.")
+    
+    try: 
+        numWumpi = int(wumpi)                                    #????????????Do we need to check for anything else? ex. that this isnt too large? idk since we don't know size of cave
+    except ValueError:
+        numWumpi = 1
+        print("Number of wumpi invalid, defaulting to 1.")
+
+    return 0 
+
 
 
 def eastOrWest(east):#tells move functions whether to move east or west based off of the status of the left variable
@@ -114,9 +134,9 @@ def getMove(sensor):
             moves.append(move)
             return move 
             
-        elif p == 'U' and 
+      #  elif p == 'U': #and 
 
-
+      #      return 0
         #may need more movement commands 
 
         
