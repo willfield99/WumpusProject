@@ -35,7 +35,7 @@
 #TODO
 # 1. Ask about the other inputs we have to check (numWumpi)
 # 2. More efficient logic? (poke - holing?) since we have a limited number of moves we need to worry about efficiency 
-#
+# 3. Mapping function / way to keep track of moves
 #
 #
 #
@@ -155,7 +155,7 @@ def getMove(sensor):
 
     for p in percepts: 
         if p == 'U': #If there is 
-            return edge(p, percepts, vertical(moves[-1])) #may need to include map?
+            return edge(p, percepts) #may need to include map?
 
 
     #bumpcheck clear, move vertically and add move to moves list
@@ -179,10 +179,12 @@ def foundGold(p, percepts):
 
 
 #in the case of an edge, the main movement function sends us here in order to try and get to the next desired tile, takes over for main movement function until it has reached this
-def edge(p, percepts, verticalVal):
+#NOTE: We should be able to use the global variable north to tell if we've been previously moving north or south.
+#NOTE  For example if we have been moving down, and hit an edge, we can simply check the value of north. If north is false we see that we have been moving down. Then we can change it to true after we turn so that it represents that we are now going up. 
+def edge(p, percepts):
     currentPercept = p
     perceptList = percepts
-    vertical = verticalVal
+    print("In edge case")
 
     if p != 'U': #bumpcheck clear, move vertically and add move to moves list
             posssibleCorner= False
@@ -221,6 +223,7 @@ def edge(p, percepts, verticalVal):
 def pit(p, percepts):
     currentPercept = p
     perceptList = percepts
+    print("In pit case")
 
     return 0
 
@@ -248,8 +251,6 @@ def wumpus(numArrows, count):
         return ''
     
     
-
-
 
 
 def escape():
