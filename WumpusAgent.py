@@ -39,10 +39,6 @@
 #
 #
 #
-#
-#
-#
-#
 
 
 #--------------------------
@@ -56,10 +52,13 @@ up = False #going down or south by default
 left = False #moving right or west by default
 moves = [] #list of all made moves by the agent
 #htw = HuntTheWumpus()
-north = False #global variable for telling if we are moving north, or south
-east = True #Global variables for telling if we are moving east, or west
+
+north = False #global variable for telling if we are moving north, or south 0 - Moving South, 1 - Moving North
+east = True #Global variables for telling if we are moving east, or west: 0 - moving west, 1 - moving east
 shootcount = 0
 possiblecorner = False #used to check if we have reached a coerner of the cave. If bumpcheck is true, then possibleCorner is set true. if on the next turn bumpcheck is true again, then we have hit a corner
+
+
 
 
 #sets the type of wumpi (moving/stationary), # of arrows, and # of wumpi: used for re-setting the game in the driver code
@@ -134,6 +133,10 @@ def getMove(sensor):
     percepts = list(sensor) #Creates a list out of input percepts 
     print(percepts)
     move = ''#move performed by the agent this turn
+    global north
+    global east
+    global moves
+    global map
 
 
     for p in percepts:  
@@ -160,7 +163,12 @@ def getMove(sensor):
 
     #bumpcheck clear, move vertically and add move to moves list
 
-    return 'S' # should return a valid string back to driver to indicate each move, right now it just spams south
+    if north == True:
+        moves.append('N')
+        return 'N'
+    else:
+        moves.append('S')
+        return 'S'
 
 
 
@@ -180,33 +188,103 @@ def foundGold(p, percepts):
 
 #in the case of an edge, the main movement function sends us here in order to try and get to the next desired tile, takes over for main movement function until it has reached this
 #NOTE: We should be able to use the global variable north to tell if we've been previously moving north or south.
-#NOTE  For example if we have been moving down, and hit an edge, we can simply check the value of north. If north is false we see that we have been moving down. Then we can change it to true after we turn so that it represents that we are now going up. 
+#NOTE  For example if we have been moving down, and hit an edge, we can simply check the value of north. If north is false we see that we have been moving down. Then we can change it to true then turn so that it represents that we are now going up. 
 def edge(p, percepts):
     currentPercept = p
     perceptList = percepts
+    global north #important to include these in order to edit global variables
+    global east
+    global moves
+    global map
     print("In edge case")
 
-    if p != 'U': #bumpcheck clear, move vertically and add move to moves list
-            posssibleCorner= False
-            move = northOrSouth(up)
-            moves.append(move)
-            return move
+#cases: 
+# HIT BOTTOM MOVING DOWN / RIGHT
+# 1. moving down (north = False) && moving right (east = True) && last move NOT move right (east): set north to true, return move right, 
+# 1.a moving down (north = False) && moving right (east = True) && last move WAS move right (east) : return move down   - case for if we are at the step after we have hit the top (our last move was move right), so we simply return go down
+
+#HIT BOTTOM MOVING DOWN / LEFT
+# 2. moving down (north = False) && moving left (east = False) && last move NOT move left: set north to true, return move left
+# 2a. moving down (north = False) && moving left (east = False) && last move WAS move left: return move down
+
+#HIT TOP MOVING UP / RIGHT
+# 3. moving up(north = True) && moving right (east = True) && last move NOT move right: set north to False, return move right
+# 3a. moving up(north = True) && moving right (east = True) && last move WAS move right: return move up - case for if we have just previously hit the bottom and moved right, so we want to simply go up
+
+#HIT TOP MOVING UP / LEFT
+# 4.)  moving up(north = True) && moving left (east = False) && last move NOT move left: set north to False, return move left
+# 4a.)  moving up(north = True) && moving left (east = False) && last move WAS move left: return move up
+
+#HIT CORNER - Good Question
+
+    #1 hit bottom moving right
+    if north == False and east == True and moves[-1] != 'E':
+        north = True
+        moves.append('E')
+        return 'E'
+
+    #1a hit top, but just moved left
+    if north == False and east == True and moves[-1] == 'E':
+        moves.append('S')
+        return 'S'
+
+    #2 hit bottom moving left
+    if north == False and east == False and moves[-1] != 'W':
+        north = True
+        moves.append('W')
+        return 'W'
+
+    #2a hit top, but just moved right
+    if north == False and east == False and moves[-1] == 'W':
+        moves.append('S')
+        return 'S'
+
+    #3
+    if north == True and east == True and moves[-1] != 'E':
+        north = False
+        moves.append('E')
+        return 'E'
+
+    #3a
+    if north == True and east == True and moves[-1] == 'E':
+        moves.append('N')
+        return 'N'
+
+    #4
+    if north == True and east == False and moves[-1] != 'W':
+        north = False
+        moves.append('W')
+        return 'W'
+
+    #4a
+    if north == True and east == False and moves[-1] == 'W':
+        moves.append('N')
+        return 'N'
+
+
+
+
+    # #if p != 'U': #bumpcheck clear, move vertically and add move to moves list
+    #         posssibleCorner= False
+    #         move = northOrSouth(up)
+    #         moves.append(move)
+    #         return move
         
-    elif p == 'U' and vertical(moves[-1]): #move horizontally because we have hit the top or bottom of cave
-            move = eastOrWest(left)
-            up = not up
-            moves.append(move)
-            return move
+    # elif p == 'U' and vertical(moves[-1]): #move horizontally because we have hit the top or bottom of cave
+    #         move = eastOrWest(left)
+    #         up = not up
+    #         moves.append(move)
+    #         return move
 
-    elif p == 'U' and possiblecorner:#if we have hit a corner, switch horizontal direction, call escape
-            possiblecorner == False
-            eastOrWest = not eastOrWest
-            return escape()
+    # elif p == 'U' and possiblecorner:#if we have hit a corner, switch horizontal direction, call escape
+    #         possiblecorner == False
+    #         eastOrWest = not eastOrWest
+    #         return escape()
 
-    elif p == 'U' and not vertical(moves[-1]): #move vertically because we have just moved one space horizontally after hitting the side of cave
-            move = northOrSouth(up)
-            moves.append(move)
-            return move 
+    # elif p == 'U' and not vertical(moves[-1]): #move vertically because we have just moved one space horizontally after hitting the side of cave
+    #         move = northOrSouth(up)
+    #         moves.append(move)
+    #         return move 
             
       #  elif p == 'U' and 
    #may need more movement commands 
@@ -225,7 +303,7 @@ def pit(p, percepts):
     perceptList = percepts
     print("In pit case")
 
-    return 0
+    return 'S' #temporary
 
 
 
