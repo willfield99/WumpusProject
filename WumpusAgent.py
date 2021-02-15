@@ -111,7 +111,9 @@ def vertical(s): #chekcs if last move was vertical. if it was not then its horiz
 #create a dict to use as a map
 #Each room object will have a tuple coordinate as a key. Room objects will contain the data that we know about the room and can be updated to reflect newfound info
 startroom = Room(0, 0, False, 0, 0, 0)#first room added to our map-will be updated 
-#currentRoom = startroom# key of the current room 
+currentRoom = startroom# key of the current room 
+
+#this is our agents knowledge map. it starts out with the entrance room
 map = {(0,0): startroom}
 
 def getCurrentRoom(prevroomx, prevroomy, move):#takes in coordinates of prevroom to return key coordinates of newroom
@@ -147,8 +149,8 @@ def addRooms(currentRoomX, currentRoomY, percepts):#after each directional move 
     if 'B' in percepts:
         map[(currentRoomX -1, currentRoomY)].setBreeze(1)
         map[(currentRoomX +1, currentRoomY)].setBreeze(1)
-        map[(currentRoomX, currentRoomY -1)].setStench(1)
-        map[(currentRoomX, currentRoomY +1)].setStench(1)
+        map[(currentRoomX, currentRoomY -1)].setBreeze(1)
+        map[(currentRoomX, currentRoomY +1)].setBreeze(1)
 
 
     
@@ -185,7 +187,7 @@ def getMove(sensor):
     global moves
     global map
 
-    #currentRoom = getCurrentRoom(currentRoom.getX, currentRoom.getY, moves[-1])#getting current room
+    room = getCurrentRoom(currentRoom.getX, currentRoom.getY, moves[-1])#getting current room
 
     for p in percepts:  
          
@@ -358,6 +360,13 @@ def pit(p, percepts):
     global moves
     global breaker
     print("In pit case")
+
+    s = map[(currentRoom.getX, currentRoom.getY -1)]
+    n = map[(currentRoom.getX, currentRoom.getY +1)]
+    w = map[(currentRoom.getX +1, currentRoom.getY)]
+    e = map[(currentRoom.getX +1, currentRoom.getY)]
+
+
 
     breaker = breaker + 1
 

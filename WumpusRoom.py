@@ -3,13 +3,13 @@
 
 class Room(object):
     
-    def __init__(self, x, y, visited, stench, breeze, safe):
+    def __init__(self, x, y, visited, stench, breeze):
         self.x = x
         self.y = y
         self.visited = visited
         self.stench = stench
         self.breeze = breeze
-        self.safe = safe
+        self.safe = self.safe()
     
 
     def setX(self, xnum):#position coordinates
@@ -41,7 +41,14 @@ class Room(object):
     
     def getBreeze(self):
         return self.breeze
-    
+
+    def safe(self):#calculates a rooms safety prediction. 
+        if self.visited:
+            return 0
+        
+        else:
+            return self.getBreeze + self.getStench
+        
 
 
     
