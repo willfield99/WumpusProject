@@ -50,15 +50,15 @@ numArrows = 0
 numWumpi = 0
 up = False #going down or south by default
 left = False #moving right or west by default
-moves = [] #list of all made moves by the agent
-#htw = HuntTheWumpus()
+moves = [''] #list of all made moves by the agent- first item is null so that getcurrent move returns the entrance the first time its called
+
 
 north = False #global variable for telling if we are moving north, or south 0 - Moving South, 1 - Moving North
 east = True #Global variables for telling if we are moving east, or west: 0 - moving west, 1 - moving east
 breaker = 0 #used to break infinite loops
 shootcount = 0
 possiblecorner = False #used to check if we have reached a coerner of the cave. If bumpcheck is true, then possibleCorner is set true. if on the next turn bumpcheck is true again, then we have hit a corner
-currentRoom = (0,0)# key of the current room
+
 
 
 #sets the type of wumpi (moving/stationary), # of arrows, and # of wumpi: used for re-setting the game in the driver code
@@ -111,6 +111,7 @@ def vertical(s): #chekcs if last move was vertical. if it was not then its horiz
 #create a dict to use as a map
 #Each room object will have a tuple coordinate as a key. Room objects will contain the data that we know about the room and can be updated to reflect newfound info
 startroom = Room(0, 0, False, 0, 0, 0)#first room added to our map-will be updated 
+#currentRoom = startroom# key of the current room 
 map = {(0,0): startroom}
 
 def getCurrentRoom(prevroomx, prevroomy, move):#takes in coordinates of prevroom to return key coordinates of newroom
@@ -124,6 +125,33 @@ def getCurrentRoom(prevroomx, prevroomy, move):#takes in coordinates of prevroom
         return (prevroomx +1, prevroomy)
     else:
         return(prevroomx, prevroomy)
+
+def addRooms(currentRoomX, currentRoomY, percepts):#after each directional move made by the agent, we check if we need to add new rooms to our map. Then we update the data associated with our rooms based on the percept list
+    x = currentRoomX
+    y = currentRoomY
+    if not (currentRoomX -1, currentRoomY) in map:
+        map[(currentRoomX -1, currentRoomY)] = Room(currentRoomX -1, currentRoomY, False, 0, 0, 0)
+    if not (currentRoomX +1, currentRoomY) in map:
+        map[(currentRoomX +1, currentRoomY)] = Room(currentRoomX +1, currentRoomY, False, 0, 0, 0)
+    if not (currentRoomX, currentRoomY -1) in map:
+        map[(currentRoomX, currentRoomY -1)] = Room(currentRoomX, currentRoomY -1, False, 0, 0, 0)
+    if not (currentRoomX, currentRoomY +1) in map:
+        map[(currentRoomX, currentRoomY +1)] = Room(currentRoomX, currentRoomY +1, False, 0, 0, 0)
+    
+    if 'S' in percepts:
+        map[(currentRoomX -1, currentRoomY)].setStench(1)
+        map[(currentRoomX +1, currentRoomY)].setStench(1)
+        map[(currentRoomX, currentRoomY -1)].setStench(1)
+        map[(currentRoomX, currentRoomY +1)].setStench(1)
+    
+    if 'B' in percepts:
+        map[(currentRoomX -1, currentRoomY)].setBreeze(1)
+        map[(currentRoomX +1, currentRoomY)].setBreeze(1)
+        map[(currentRoomX, currentRoomY -1)].setStench(1)
+        map[(currentRoomX, currentRoomY +1)].setStench(1)
+
+
+    
 
 
 #MAIN MOVEMENT FUNCTION
@@ -157,7 +185,7 @@ def getMove(sensor):
     global moves
     global map
 
-    getCurrentRoom()
+    #currentRoom = getCurrentRoom(currentRoom.getX, currentRoom.getY, moves[-1])#getting current room
 
     for p in percepts:  
          
