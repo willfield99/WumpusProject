@@ -41,21 +41,23 @@
 #--------------------------
 #globals
 #--------------------------
-map = [] #currently 1d, needs to be 2d possibly?
+#map = [] #currently 1d, needs to be 2d possibly?
+from WumpusRoom import Room
+
+
 gameType = 0
 numArrows = 0
 numWumpi = 0
 up = False #going down or south by default
 left = False #moving right or west by default
-moves = [] #list of all made moves by the agent
-#htw = HuntTheWumpus()
+moves = [''] #list of all made moves by the agent- first item is null so that getcurrent move returns the entrance the first time its called
+
 
 north = False #global variable for telling if we are moving north, or south 0 - Moving South, 1 - Moving North
 east = True #Global variables for telling if we are moving east, or west: 0 - moving west, 1 - moving east
 breaker = 0 #used to break infinite loops
 shootcount = 0
 possiblecorner = False #used to check if we have reached a coerner of the cave. If bumpcheck is true, then possibleCorner is set true. if on the next turn bumpcheck is true again, then we have hit a corner
-
 
 
 
@@ -106,6 +108,53 @@ def vertical(s): #chekcs if last move was vertical. if it was not then its horiz
     elif s == 'E' or s == 'W':
         return False
 
+#create a dict to use as a map
+#Each room object will have a tuple coordinate as a key. Room objects will contain the data that we know about the room and can be updated to reflect newfound info
+startroom = Room(0, 0, False, 0, 0, 0)#first room added to our map-will be updated 
+currentRoom = startroom# key of the current room 
+
+#this is our agents knowledge map. it starts out with the entrance room
+map = {(0,0): startroom}
+
+def getCurrentRoom(prevroomx, prevroomy, move):#takes in coordinates of prevroom to return key coordinates of newroom
+    if move == 'N':
+        return (prevroomx, prevroomy +1)
+    if move == 'S':
+        return (prevroomx, prevroomy -1)
+    if move == 'E':
+        return (prevroomx -1, prevroomy)
+    if move == 'W':
+        return (prevroomx +1, prevroomy)
+    else:
+        return(prevroomx, prevroomy)
+
+def addRooms(currentRoomX, currentRoomY, percepts):#after each directional move made by the agent, we check if we need to add new rooms to our map. Then we update the data associated with our rooms based on the percept list
+    x = currentRoomX
+    y = currentRoomY
+    if not (currentRoomX -1, currentRoomY) in map:
+        map[(currentRoomX -1, currentRoomY)] = Room(currentRoomX -1, currentRoomY, False, 0, 0, 0)
+    if not (currentRoomX +1, currentRoomY) in map:
+        map[(currentRoomX +1, currentRoomY)] = Room(currentRoomX +1, currentRoomY, False, 0, 0, 0)
+    if not (currentRoomX, currentRoomY -1) in map:
+        map[(currentRoomX, currentRoomY -1)] = Room(currentRoomX, currentRoomY -1, False, 0, 0, 0)
+    if not (currentRoomX, currentRoomY +1) in map:
+        map[(currentRoomX, currentRoomY +1)] = Room(currentRoomX, currentRoomY +1, False, 0, 0, 0)
+    
+    if 'S' in percepts:
+        map[(currentRoomX -1, currentRoomY)].setStench(1)
+        map[(currentRoomX +1, currentRoomY)].setStench(1)
+        map[(currentRoomX, currentRoomY -1)].setStench(1)
+        map[(currentRoomX, currentRoomY +1)].setStench(1)
+    
+    if 'B' in percepts:
+        map[(currentRoomX -1, currentRoomY)].setBreeze(1)
+        map[(currentRoomX +1, currentRoomY)].setBreeze(1)
+        map[(currentRoomX, currentRoomY -1)].setBreeze(1)
+        map[(currentRoomX, currentRoomY +1)].setBreeze(1)
+
+
+    
+
 
 #MAIN MOVEMENT FUNCTION
 # G - glitter -- incomplete
@@ -126,6 +175,8 @@ def vertical(s): #chekcs if last move was vertical. if it was not then its horiz
 
 #Logic B: Poke-holing, where instead of scanning everything since we have a limited # of moves
 
+
+
 #main purpose - move and check if there is gold, 
 def getMove(sensor):
     percepts = list(sensor) #Creates a list out of input percepts 
@@ -136,14 +187,20 @@ def getMove(sensor):
     global moves
     global map
 
+    room = getCurrentRoom(currentRoom.getX, currentRoom.getY, moves[-1])#getting current room
+
     for p in percepts:  
+         
+         
          if p == 'G':
-             return foundGold(p, percepts)
+             escape()
+             return 'G'
     
     for p in percepts:  
         if p == 'S':#if there is a wumpus in an adjacent square
             shootcount = shootcount + 1#add to shootcount for each shot
-            return wumpus(numArrows, shootcount)
+            #return wumpus(numArrows, shootcount)
+            return 'SN' #not sure wumpus method is correct so for now just shoot north
 
     for p in percepts:  
          if p == 'C':#if wumpus is hit then reset shootcount
@@ -154,7 +211,7 @@ def getMove(sensor):
             return pit(p, percepts) 
 
     for p in percepts: 
-        if p == 'U': #If there is 
+        if p == 'U': #If there is an edge
             return edge(p, percepts) #may need to include map?
 
 
@@ -169,11 +226,13 @@ def getMove(sensor):
 
 
 
+def map(): #uses a 2X2 list to create a dynamic map which contains precept based predictions on rooms
+
 
 
 #in the case that there is a G in the percept list, we come here to try to work out getting it. Once we are done here, we trigger escape()
 #params: some info (may need more) from the main nav function to help it make its decision, it should also have access to the global map
-def foundGold(p, percepts): 
+ def foundGold(p, percepts): 
     currentPercept = p
     perceptList = percepts
 
@@ -301,6 +360,13 @@ def pit(p, percepts):
     global moves
     global breaker
     print("In pit case")
+
+    s = map[(currentRoom.getX, currentRoom.getY -1)]
+    n = map[(currentRoom.getX, currentRoom.getY +1)]
+    w = map[(currentRoom.getX +1, currentRoom.getY)]
+    e = map[(currentRoom.getX +1, currentRoom.getY)]
+
+
 
     breaker = breaker + 1
 
