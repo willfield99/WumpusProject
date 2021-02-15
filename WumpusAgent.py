@@ -36,9 +36,6 @@
 # 1. Ask about the other inputs we have to check (numWumpi)
 # 2. More efficient logic? (poke - holing?) since we have a limited number of moves we need to worry about efficiency 
 # 3. Mapping function / way to keep track of moves
-#
-#
-#
 
 
 #--------------------------
@@ -55,6 +52,7 @@ moves = [] #list of all made moves by the agent
 
 north = False #global variable for telling if we are moving north, or south 0 - Moving South, 1 - Moving North
 east = True #Global variables for telling if we are moving east, or west: 0 - moving west, 1 - moving east
+breaker = 0 #used to break infinite loops
 shootcount = 0
 possiblecorner = False #used to check if we have reached a coerner of the cave. If bumpcheck is true, then possibleCorner is set true. if on the next turn bumpcheck is true again, then we have hit a corner
 
@@ -137,7 +135,6 @@ def getMove(sensor):
     global east
     global moves
     global map
-
 
     for p in percepts:  
          if p == 'G':
@@ -301,8 +298,15 @@ def edge(p, percepts):
 def pit(p, percepts):
     currentPercept = p
     perceptList = percepts
+    global moves
+    global breaker
     print("In pit case")
 
+    breaker = breaker + 1
+
+    if breaker > 15:
+        return 0
+        
     return 'S' #temporary
 
 
