@@ -368,9 +368,15 @@ def pit(p, percepts):
         return 0
         
     if north == True:
+<<<<<<< HEAD
      return 'N'
     else:
         return 'S'
+=======
+        return 'N'
+    else:
+        return 'S' #temporary
+>>>>>>> d24c8f942ddaddca8d6fdf9282512cd33880b985
 
 
 
