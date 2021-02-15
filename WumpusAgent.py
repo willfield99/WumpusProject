@@ -41,7 +41,10 @@
 #--------------------------
 #globals
 #--------------------------
-map = [] #currently 1d, needs to be 2d possibly?
+#map = [] #currently 1d, needs to be 2d possibly?
+from WumpusRoom import Room
+
+
 gameType = 0
 numArrows = 0
 numWumpi = 0
@@ -55,11 +58,7 @@ east = True #Global variables for telling if we are moving east, or west: 0 - mo
 breaker = 0 #used to break infinite loops
 shootcount = 0
 possiblecorner = False #used to check if we have reached a coerner of the cave. If bumpcheck is true, then possibleCorner is set true. if on the next turn bumpcheck is true again, then we have hit a corner
-l = []
-for i in range(3):
-    temp = [0] * 3
-    l.append(temp)
-
+currentRoom = (0,0)# key of the current room
 
 
 #sets the type of wumpi (moving/stationary), # of arrows, and # of wumpi: used for re-setting the game in the driver code
@@ -109,6 +108,23 @@ def vertical(s): #chekcs if last move was vertical. if it was not then its horiz
     elif s == 'E' or s == 'W':
         return False
 
+#create a dict to use as a map
+#Each room object will have a tuple coordinate as a key. Room objects will contain the data that we know about the room and can be updated to reflect newfound info
+startroom = Room(0, 0, False, 0, 0, 0)#first room added to our map-will be updated 
+map = {(0,0): startroom}
+
+def getCurrentRoom(prevroomx, prevroomy, move):#takes in coordinates of prevroom to return key coordinates of newroom
+    if move == 'N':
+        return (prevroomx, prevroomy +1)
+    if move == 'S':
+        return (prevroomx, prevroomy -1)
+    if move == 'E':
+        return (prevroomx -1, prevroomy)
+    if move == 'W':
+        return (prevroomx +1, prevroomy)
+    else:
+        return(prevroomx, prevroomy)
+
 
 #MAIN MOVEMENT FUNCTION
 # G - glitter -- incomplete
@@ -129,6 +145,8 @@ def vertical(s): #chekcs if last move was vertical. if it was not then its horiz
 
 #Logic B: Poke-holing, where instead of scanning everything since we have a limited # of moves
 
+
+
 #main purpose - move and check if there is gold, 
 def getMove(sensor):
     percepts = list(sensor) #Creates a list out of input percepts 
@@ -139,7 +157,11 @@ def getMove(sensor):
     global moves
     global map
 
+    getCurrentRoom()
+
     for p in percepts:  
+         
+         
          if p == 'G':
              escape()
              return 'G'
@@ -147,7 +169,8 @@ def getMove(sensor):
     for p in percepts:  
         if p == 'S':#if there is a wumpus in an adjacent square
             shootcount = shootcount + 1#add to shootcount for each shot
-            return wumpus(numArrows, shootcount)
+            #return wumpus(numArrows, shootcount)
+            return 'SN' #not sure wumpus method is correct so for now just shoot north
 
     for p in percepts:  
          if p == 'C':#if wumpus is hit then reset shootcount
@@ -158,7 +181,7 @@ def getMove(sensor):
             return pit(p, percepts) 
 
     for p in percepts: 
-        if p == 'U': #If there is 
+        if p == 'U': #If there is an edge
             return edge(p, percepts) #may need to include map?
 
 
