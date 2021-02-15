@@ -307,7 +307,10 @@ def pit(p, percepts):
     if breaker > 15:
         return 0
         
-    return 'S' #temporary
+    if north == True:
+        return 'N'
+    else:
+        return 'S' #temporary
 
 
 
