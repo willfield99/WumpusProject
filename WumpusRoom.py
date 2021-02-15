@@ -3,13 +3,13 @@
 
 class Room(object):
     
-    def __init__(self, x, y, visited, stench, breeze):
+    def __init__(self, x, y, visited, stench, breeze, safe):
         self.x = x
         self.y = y
         self.visited = visited
         self.stench = stench
         self.breeze = breeze
-        self.safe = self.safe()
+        self.safe = safe
     
 
     def setX(self, xnum):#position coordinates

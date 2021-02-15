@@ -86,7 +86,8 @@ def setParams(type, arrows, wumpi):
         numWumpi = 1
         print("Number of wumpi invalid, defaulting to 1.")
 
-    return 0 
+    return ""
+ 
 
 
 #Q: Should we make these global variables? then we could just check them whenever without making a funciton call. -Mason
@@ -187,7 +188,7 @@ def getMove(sensor):
     global moves
     global map
 
-    room = getCurrentRoom(currentRoom.getX, currentRoom.getY, moves[-1])#getting current room
+    #room = getCurrentRoom(currentRoom.getX, currentRoom.getY, moves[-1])#getting current room
 
     for p in percepts:  
          
@@ -361,19 +362,15 @@ def pit(p, percepts):
     global breaker
     print("In pit case")
 
-    s = map[(currentRoom.getX, currentRoom.getY -1)]
-    n = map[(currentRoom.getX, currentRoom.getY +1)]
-    w = map[(currentRoom.getX +1, currentRoom.getY)]
-    e = map[(currentRoom.getX +1, currentRoom.getY)]
-
-
-
     breaker = breaker + 1
 
     if breaker > 15:
         return 0
         
-    return 'S' #temporary
+    if north == True:
+     return 'N'
+    else:
+        return 'S'
 
 
 
@@ -402,4 +399,8 @@ def wumpus(numArrows, count):
 
 
 def escape():
+    s = map[(currentRoom.getX, currentRoom.getY -1)]
+    n = map[(currentRoom.getX, currentRoom.getY +1)]
+    w = map[(currentRoom.getX +1, currentRoom.getY)]
+    e = map[(currentRoom.getX +1, currentRoom.getY)]
     return 0
