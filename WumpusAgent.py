@@ -188,8 +188,10 @@ def getMove(sensor):
     global moves
     global map
 
-    #room = getCurrentRoom(currentRoom.getX, currentRoom.getY, moves[-1])#getting current room
+    room = getCurrentRoom(currentRoom.getX(), currentRoom.getY(), moves[-1])#getting current room
+    #addRooms()
 
+    print(room)#printing the room that we are in- this line is just for testing purposes
     for p in percepts:   
          if p == 'G':
              escape()
