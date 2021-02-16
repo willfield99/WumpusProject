@@ -47,7 +47,7 @@ class Room(object):
             return 0
         
         else:
-            return self.getBreeze + self.getStench
+            return self.getBreeze() + self.getStench()
         
 
 

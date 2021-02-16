@@ -190,22 +190,21 @@ def getMove(sensor):
 
     #room = getCurrentRoom(currentRoom.getX, currentRoom.getY, moves[-1])#getting current room
 
-    for p in percepts:  
-         
-         
+    for p in percepts:   
          if p == 'G':
              escape()
              return 'G'
     
     for p in percepts:  
         if p == 'S':#if there is a wumpus in an adjacent square
-            shootcount = shootcount + 1#add to shootcount for each shot
+            #shootcount += 1#add to shootcount for each shot
             #return wumpus(numArrows, shootcount)
             return 'SN' #not sure wumpus method is correct so for now just shoot north
 
     for p in percepts:  
          if p == 'C':#if wumpus is hit then reset shootcount
-            shootcount = 0
+            #shootcount = 0
+            return 'SW'
 
     for p in percepts: 
         if p == 'B':#If the current percept is a pit
@@ -227,13 +226,9 @@ def getMove(sensor):
 
 
 
-def map(): #uses a 2X2 list to create a dynamic map which contains precept based predictions on rooms
-
-
-
 #in the case that there is a G in the percept list, we come here to try to work out getting it. Once we are done here, we trigger escape()
 #params: some info (may need more) from the main nav function to help it make its decision, it should also have access to the global map
- def foundGold(p, percepts): 
+def foundGold(p, percepts): 
     currentPercept = p
     perceptList = percepts
 
@@ -368,15 +363,9 @@ def pit(p, percepts):
         return 0
         
     if north == True:
-<<<<<<< HEAD
-     return 'N'
-    else:
-        return 'S'
-=======
         return 'N'
     else:
         return 'S' #temporary
->>>>>>> d24c8f942ddaddca8d6fdf9282512cd33880b985
 
 
 
@@ -399,14 +388,14 @@ def wumpus(numArrows, count):
         return('SW')
     else:
         print('Error in WumpasAgent.wumpus()')
-        return ''
+        return 'SW'
     
     
 
 
 def escape():
-    s = map[(currentRoom.getX, currentRoom.getY -1)]
-    n = map[(currentRoom.getX, currentRoom.getY +1)]
-    w = map[(currentRoom.getX +1, currentRoom.getY)]
-    e = map[(currentRoom.getX +1, currentRoom.getY)]
-    return 0
+    #s = map[(currentRoom.getX, currentRoom.getY -1)]
+    #n = map[(currentRoom.getX, currentRoom.getY +1)]
+    #w = map[(currentRoom.getX +1, currentRoom.getY)]
+    #e = map[(currentRoom.getX +1, currentRoom.getY)]
+    return 'N'
