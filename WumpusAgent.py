@@ -43,7 +43,7 @@
 #--------------------------
 #map = [] #currently 1d, needs to be 2d possibly?
 from WumpusRoom import Room
-
+from random import randint
 
 gameType = 0
 numArrows = 0
@@ -112,10 +112,12 @@ def vertical(s): #chekcs if last move was vertical. if it was not then its horiz
 #create a dict to use as a map
 #Each room object will have a tuple coordinate as a key. Room objects will contain the data that we know about the room and can be updated to reflect newfound info
 startroom = Room(0, 0, False, 0, 0, 0)#first room added to our map-will be updated 
-currentRoom = startroom# key of the current room 
-
 #this is our agents knowledge map. it starts out with the entrance room
 map = {(0,0): startroom}
+# setting the key of the current room
+
+currentRoom = map[(startroom.getX(), startroom.getY())] 
+
 
 def getCurrentRoom(prevroomx, prevroomy, move):#takes in coordinates of prevroom to return key coordinates of newroom
     if move == 'N':
@@ -186,12 +188,49 @@ def getMove(sensor):
     global north
     global east
     global moves
-    global map
+    #global map
+    
+    #print(currentRoom)
+    #room = getCurrentRoom(currentRoom.getX(), currentRoom.getY(), moves[-1])#getting current rooms coordinates. for the first room this is (0,0)
+    
+    #addRooms(map[room].getX(), map[room].getY(), percepts)#adds the 4 rooms adjacent to our current room to the map
+    #currentRoom = room
+    #print(currentRoom)#printing the room that we are in- this line is just for testing purposes
 
-    room = getCurrentRoom(currentRoom.getX(), currentRoom.getY(), moves[-1])#getting current room
-    #addRooms()
+    if 'G' in percepts:   
+         #escape() #escape does nothing rn
+         return 'G'
+    
+    if 'S' in percepts:  
+        #if there is a wumpus in an adjacent square
+        
+        return wumpus(numArrows)
+        
 
-    print(room)#printing the room that we are in- this line is just for testing purposes
+    if 'C' in percepts:  
+        shootcount = 0
+        return 'SW'
+
+    if 'B' in percepts and 'U' in percepts: #if we are at a pit and an edge at the same time
+        return 'N'
+        
+    if 'B' in percepts:#If the current percept is a pit
+        return pit(percepts) 
+
+    if 'U' in percepts: 
+        
+        return edge(percepts) #may need to include map?
+
+
+    #bumpcheck clear, move vertically and add move to moves list
+
+    if north == True:
+        moves.append('N')
+        return 'N'
+    else:
+        moves.append('S')
+        return 'S'
+    '''
     for p in percepts:   
          if p == 'G':
              escape()
@@ -226,7 +265,7 @@ def getMove(sensor):
         moves.append('S')
         return 'S'
 
-
+'''
 
 #in the case that there is a G in the percept list, we come here to try to work out getting it. Once we are done here, we trigger escape()
 #params: some info (may need more) from the main nav function to help it make its decision, it should also have access to the global map
@@ -243,8 +282,8 @@ def foundGold(p, percepts):
 #in the case of an edge, the main movement function sends us here in order to try and get to the next desired tile, takes over for main movement function until it has reached this
 #NOTE: We should be able to use the global variable north to tell if we've been previously moving north or south.
 #NOTE  For example if we have been moving down, and hit an edge, we can simply check the value of north. If north is false we see that we have been moving down. Then we can change it to true then turn so that it represents that we are now going up. 
-def edge(p, percepts):
-    currentPercept = p
+def edge(percepts):
+    #currentPercept = p
     perceptList = percepts
     global north #important to include these in order to edit global variables
     global east
@@ -352,8 +391,8 @@ def edge(p, percepts):
 
 
 #in the case of a pit, the main movement function sends us here in order to try and get to the next desired tile, takes over for main movement function until it has reached this
-def pit(p, percepts):
-    currentPercept = p
+def pit(percepts):
+    #currentPercept = p
     perceptList = percepts
     global moves
     global breaker
@@ -362,6 +401,7 @@ def pit(p, percepts):
     breaker = breaker + 1
 
     if breaker > 15:
+        print("stuck in loop, breaker activated")
         return 0
         
     if north == True:
@@ -373,9 +413,9 @@ def pit(p, percepts):
 
 
 
-#In the case of a wumpus, mmain movement function sends us here in order to try and kill it.
-def wumpus(numArrows, count):
-    
+#In the case of a wumpus, mmain movement function sends us here in order to try and kill it. It chooses a random direction to shoot in
+def wumpus(numArrow):
+    count = randint(0,3)
     if numArrows > 0 and count == 0:
         numArrows = numArrows- 1
         return('SN')
@@ -389,8 +429,7 @@ def wumpus(numArrows, count):
         numArrows = numArrows- 1
         return('SW')
     else:
-        print('Error in WumpasAgent.wumpus()')
-        return 'SW'
+        return 'G'
     
     
 
