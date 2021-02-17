@@ -322,7 +322,7 @@ def edge(percepts):
 #HIT CORNER - Good Question
 
 #if we are jammed in a corner, simply change east/west
-    if prev[-1] == 'U' and prev[-2] == 'O' and prev[-3] == 'U' and prev[-4] == 'O' or prev[-1] == 'U' and prev[-2] == 'U':
+    if prev[-1] == 'U' and prev[-2] == 'O' and prev[-3] == 'U' and prev[-4] == 'O' or prev[-1] == 'U' and prev[-2] == 'U' and prev[-3] == 'U':
         if east == True:
             east = False
             prev.append('X') #in case it would see the U,U,U again, we add an x so prev[-1] is equal to x to stop this
