@@ -234,9 +234,11 @@ def getMove(sensor):
 
     if north == True:
         moves.append('N')
+        prev.append('O')
         return 'N'
     else:
         moves.append('S')
+        prev.append('O')
         return 'S'
     '''
     for p in percepts:   
@@ -320,7 +322,7 @@ def edge(percepts):
 #HIT CORNER - Good Question
 
 #if we are jammed in a corner, simply change east/west
-    if prev[-1] and prev[-2] and prev[-3] == "U":
+    if prev[-1] == 'U' and prev[-2] == 'O' and prev[-3] == 'U' and prev[-4] == 'O' or prev[-1] == 'U' and prev[-2] == 'U':
         if east == True:
             east = False
             prev.append('X') #in case it would see the U,U,U again, we add an x so prev[-1] is equal to x to stop this
@@ -420,11 +422,16 @@ def pit(percepts):
     global breaker
     print("In pit case")
 
-    breaker = breaker + 1
+   # breaker = breaker + 1
 
     if breaker > 15:
         print("stuck in loop, breaker activated")
-        return 0
+        if north == True:
+            breaker = 0
+            return 'N'
+        else:
+            breaker = 0
+            return 'S' #temporary, will probably die?
         
     if north == True:
         return 'N'
@@ -438,6 +445,8 @@ def pit(percepts):
 #In the case of a wumpus, mmain movement function sends us here in order to try and kill it. It chooses a random direction to shoot in
 def wumpus(numArrow):
     count = randint(0,3)
+    global numArrows
+    
     if numArrows > 0 and count == 0:
         numArrows = numArrows- 1
         return('SN')
@@ -451,7 +460,11 @@ def wumpus(numArrow):
         numArrows = numArrows- 1
         return('SW')
     else:
-        return 'G'
+        if north == True:
+             return 'N'
+        else:
+            return 'S' #temporary
+        #return 'G' causes an infinite loop because we don't move, changed it to 'S' temporarily
     
     
 
