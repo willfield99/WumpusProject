@@ -56,6 +56,7 @@ moves = [''] #list of all made moves by the agent- first item is null so that ge
 north = False #global variable for telling if we are moving north, or south 0 - Moving South, 1 - Moving North
 east = True #Global variables for telling if we are moving east, or west: 0 - moving west, 1 - moving east
 breaker = 0 #used to break infinite loops
+prev = ['X', 'X', 'X']
 shootcount = 0
 possiblecorner = False #used to check if we have reached a coerner of the cave. If bumpcheck is true, then possibleCorner is set true. if on the next turn bumpcheck is true again, then we have hit a corner
 
@@ -81,7 +82,7 @@ def setParams(type, arrows, wumpi):
         print("Number of arrows invalid, defaulting to 1.")
     
     try: 
-        numWumpi = int(wumpi)                                    #????????????Do we need to check for anything else? ex. that this isnt too large? idk since we don't know size of cave
+        numWumpi = int(wumpi)                                   
     except ValueError:
         numWumpi = 1
         print("Number of wumpi invalid, defaulting to 1.")
@@ -188,6 +189,7 @@ def getMove(sensor):
     global north
     global east
     global moves
+    global prev
     #global map
     
     #print(currentRoom)
@@ -199,27 +201,33 @@ def getMove(sensor):
 
     if 'G' in percepts:   
          #escape() #escape does nothing rn
+         prev.append('G')
          return 'G'
     
     if 'S' in percepts:  
         #if there is a wumpus in an adjacent square
-        
+        prev.append('S')
         return wumpus(numArrows)
         
 
     if 'C' in percepts:  
         shootcount = 0
+        prev.append('C')
         return 'SW'
 
-    if 'B' in percepts and 'U' in percepts: #if we are at a pit and an edge at the same time
-        return 'N'
+    
+   # if 'B' in percepts and 'U' in percepts: #if we are at a pit and an edge at the same time
+   #     prev.append('B')
+
+   #     return 'N'
         
     if 'B' in percepts:#If the current percept is a pit
+        prev.append('B')
         return pit(percepts) 
 
     if 'U' in percepts: 
-        
-        return edge(percepts) #may need to include map?
+        prev.append('U')
+        return edge(percepts) 
 
 
     #bumpcheck clear, move vertically and add move to moves list
@@ -288,6 +296,7 @@ def edge(percepts):
     global north #important to include these in order to edit global variables
     global east
     global moves
+    global prev
     global map
     print("In edge case")
 
@@ -309,6 +318,18 @@ def edge(percepts):
 # 4a.)  moving up(north = True) && moving left (east = False) && last move WAS move left: return move up
 
 #HIT CORNER - Good Question
+
+#if we are jammed in a corner, simply change east/west
+    if prev[-1] and prev[-2] and prev[-3] == "U":
+        if east == True:
+            east = False
+            prev.append('X') #in case it would see the U,U,U again, we add an x so prev[-1] is equal to x to stop this
+            return 'W'
+        if east == False:
+            east = True
+            prev.append('X')
+            return 'E'
+
 
     #1 hit bottom moving right
     if north == False and east == True and moves[-1] != 'E':
@@ -353,6 +374,7 @@ def edge(percepts):
     if north == True and east == False and moves[-1] == 'W':
         moves.append('N')
         return 'N'
+
 
 
 
