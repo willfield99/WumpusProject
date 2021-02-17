@@ -1,3 +1,5 @@
+import random
+
 #WumpusAgent.py
 #Agent for Wumpus World Project
 # Mason Humphrey, 
@@ -57,6 +59,7 @@ north = False #global variable for telling if we are moving north, or south 0 - 
 east = True #Global variables for telling if we are moving east, or west: 0 - moving west, 1 - moving east
 breaker = 0 #used to break infinite loops
 prev = ['X', 'X', 'X']
+case = 0
 shootcount = 0
 possiblecorner = False #used to check if we have reached a coerner of the cave. If bumpcheck is true, then possibleCorner is set true. if on the next turn bumpcheck is true again, then we have hit a corner
 
@@ -220,6 +223,8 @@ def getMove(sensor):
    #     prev.append('B')
 
    #     return 'N'
+    if case != 0:
+       return pit(percepts)
         
     if 'B' in percepts:#If the current percept is a pit
         prev.append('B')
@@ -232,50 +237,32 @@ def getMove(sensor):
 
     #bumpcheck clear, move vertically and add move to moves list
 
-    if north == True:
-        moves.append('N')
-        prev.append('O')
-        return 'N'
-    else:
-        moves.append('S')
-        prev.append('O')
-        return 'S'
-    '''
-    for p in percepts:   
-         if p == 'G':
-             escape()
-             return 'G'
-    
-    for p in percepts:  
-        if p == 'S':#if there is a wumpus in an adjacent square
-            #shootcount += 1#add to shootcount for each shot
-            #return wumpus(numArrows, shootcount)
-            return 'SN' #not sure wumpus method is correct so for now just shoot north
+    if north == True: #have a 2% chance of randomly moving to the east/west to help with getting stuck
+        if random.randint(0,100) < 2:
+            if east == True:
+                return 'E'
+            else:
+                return 'W'
+        
+        else:
+            moves.append('N')
+            prev.append('O')
+            return 'N'
 
-    for p in percepts:  
-         if p == 'C':#if wumpus is hit then reset shootcount
-            #shootcount = 0
-            return 'SW'
-
-    for p in percepts: 
-        if p == 'B':#If the current percept is a pit
-            return pit(p, percepts) 
-
-    for p in percepts: 
-        if p == 'U': #If there is an edge
-            return edge(p, percepts) #may need to include map?
+    if north == False:
+        if random.randint(0,100) < 2:
+            if east == True:
+                return 'E'
+            else:
+                return 'W'
+        
+        else:
+            moves.append('S')
+            prev.append('O')
+            return 'S'
 
 
-    #bumpcheck clear, move vertically and add move to moves list
-
-    if north == True:
-        moves.append('N')
-        return 'N'
-    else:
-        moves.append('S')
-        return 'S'
-
-'''
+        
 
 #in the case that there is a G in the percept list, we come here to try to work out getting it. Once we are done here, we trigger escape()
 #params: some info (may need more) from the main nav function to help it make its decision, it should also have access to the global map
@@ -378,35 +365,6 @@ def edge(percepts):
         return 'N'
 
 
-
-
-
-    # #if p != 'U': #bumpcheck clear, move vertically and add move to moves list
-    #         posssibleCorner= False
-    #         move = northOrSouth(up)
-    #         moves.append(move)
-    #         return move
-        
-    # elif p == 'U' and vertical(moves[-1]): #move horizontally because we have hit the top or bottom of cave
-    #         move = eastOrWest(left)
-    #         up = not up
-    #         moves.append(move)
-    #         return move
-
-    # elif p == 'U' and possiblecorner:#if we have hit a corner, switch horizontal direction, call escape
-    #         possiblecorner == False
-    #         eastOrWest = not eastOrWest
-    #         return escape()
-
-    # elif p == 'U' and not vertical(moves[-1]): #move vertically because we have just moved one space horizontally after hitting the side of cave
-    #         move = northOrSouth(up)
-    #         moves.append(move)
-    #         return move 
-            
-      #  elif p == 'U' and 
-   #may need more movement commands 
-
-
     return 0 #this needs to be a movement command string, or never reached
 
 
@@ -419,24 +377,52 @@ def pit(percepts):
     #currentPercept = p
     perceptList = percepts
     global moves
-    global breaker
+    global case
+    global north
+    global east
     print("In pit case")
 
-   # breaker = breaker + 1
-
-    if breaker > 15:
-        print("stuck in loop, breaker activated")
-        if north == True:
-            breaker = 0
-            return 'N'
-        else:
-            breaker = 0
-            return 'S' #temporary, will probably die?
+    if case != 0:
+        if case == 1 or case == 3: #moving down to the right, we previously saw a pit and moved backwards ( indicated by case), now we continue east
+            case = 5
+            return 'E'
         
+        if case == 2 or case == 4: #moving down to the left, we saw a pit, moved backwards (case), and now we continue west
+            case = 5
+            return 'W'
+
+        if case == 5: #if we just dodged a pit, we want to ignore it because we may see it again
+            case = 0
+            if north == True:
+                return 'N'
+            else:
+                return 'S'
+
+
+    if north == False:
+
+        if east == True:
+            case = 1
+            north = True
+            return 'N'
+        if east == False:
+            case = 2
+            north = True
+            return 'N'
+
+
     if north == True:
-        return 'N'
-    else:
-        return 'S' #temporary
+
+        if east == True:
+            case = 3
+            north = False
+            return 'S'
+        if east == False:
+            case = 4
+            north = False
+            return 'S'
+
+
 
 
 
