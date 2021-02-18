@@ -207,16 +207,22 @@ def getMove(sensor):
     #addRooms(map[room].getX(), map[room].getY(), percepts)#adds the 4 rooms adjacent to our current room to the map
     #currentRoom = room
     #print(currentRoom)#printing the room that we are in- this line is just for testing purposes
-
-
-    if 'S' in percepts:
-        if 'U' in percepts: #If there is also an edge, just continue moving, may need to take out?
+    if len(percepts) == 0: #bandage, we needed a little bit more randomness 5% randm left or right move
+        if random.randint(0,100) < 5:
             if random.randint(0,10) < 5:
                 return 'E'
             else:
                 return 'W'
 
-    if case == 5:
+
+    if 'S' in percepts:
+        if 'U' in percepts: #Bandage function, this was the case of a loop
+            if random.randint(0,10) < 5:
+                return 'E'
+            else:
+                return 'W'
+
+    if case == 5: #keeps track of when case is 5, there was a loop where 5 is no reset due to the order of operations
         fivebreak = fivebreak + 1
         if fivebreak > 1000:
             fivebreak = 0
