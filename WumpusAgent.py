@@ -58,7 +58,9 @@ moves = [''] #list of all made moves by the agent- first item is null so that ge
 north = False #global variable for telling if we are moving north, or south 0 - Moving South, 1 - Moving North
 east = True #Global variables for telling if we are moving east, or west: 0 - moving west, 1 - moving east
 prev = ['X', 'X', 'X']
+cases = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 case = 0
+fivebreak = 0 #var for breaking rare instance where 5 isnt reset
 shootcount = 0
 possiblecorner = False #used to check if we have reached a coerner of the cave. If bumpcheck is true, then possibleCorner is set true. if on the next turn bumpcheck is true again, then we have hit a corner
 
@@ -188,7 +190,7 @@ def addRooms(currentRoomX, currentRoomY, percepts):#after each directional move 
 
 #main purpose - move and check if there is gold, 
 def getMove(sensor):
-    percepts = list(sensor) #Creates a list out of input percepts 
+    percepts = list(sensor) #Creates a list out of input percepts, (also spelled wrong, whooops)
     print(percepts)
     move = ''#move performed by the agent this turn
     global north
@@ -196,6 +198,7 @@ def getMove(sensor):
     global moves
     global prev
     global case
+    global fivebreak
     #global map
     
     #print(currentRoom)
@@ -206,21 +209,42 @@ def getMove(sensor):
     #print(currentRoom)#printing the room that we are in- this line is just for testing purposes
 
 
+    if 'S' in percepts:
+        if 'U' in percepts: #If there is also an edge, just continue moving, may need to take out?
+            if random.randint(0,10) < 5:
+                return 'E'
+            else:
+                return 'W'
+
+    if case == 5:
+        fivebreak = fivebreak + 1
+        if fivebreak > 1000:
+            fivebreak = 0
+            if random.randint(0,10) < 5:
+                return 'E'
+            else:
+                return 'W'
+
+
+
+    if case == 0:
+        cases.append(case)
+
     if case == 99: #if we have found the gold, we need to escape
         return escape(percepts)
 
     if 'G' in percepts:   
          #escape() #escape does nothing rn
          prev.append('G')
-         return 0 #to stop and at least show we are here
+         return 'S' #to stop and at least show we are here TEMPORARY CHANGE BACK TO 0
     
     if case == 20:
-        return wumpus()
+        return wumpus(percepts)
 
     if 'S' in percepts:  
         #if there is a wumpus in an adjacent square
         prev.append('S')
-        return wumpus()
+        return wumpus(percepts)
         
 
     if 'C' in percepts:  
@@ -237,7 +261,8 @@ def getMove(sensor):
 
    #     return 'N'
     if case != 0:
-       return pit(percepts)
+        print(case)
+        return pit(percepts)
         
     if 'B' in percepts:#If the current percept is a pit
         print("B in percepts")
@@ -398,19 +423,48 @@ def pit(percepts):
     global case
     global north
     global east
+    global fivebreak
+    stuck = 0
     print("In pit case")
+    print(cases)
+    # if 'U' in perceptList: #If there is also an edge, just continue moving, may need to take out?
+    #     if random.randint(0,10) < 5:
+    #         return 'E'
+    #     else:
+    #         return 'W'
+
+    #loop through last 20 cases, if 5 is there more than 3 times we are stuck in a loop, return a random direction
+    #might not work, oh well
+    if len(cases) > 25:
+        cases.clear()
+
+    for x in cases:
+        if x == 5:
+            stuck = stuck + 1
+            print("in stuck")
+            print(stuck)
+        if stuck > 3:
+            case = 0
+            if random.randint(0,10) < 5:
+                return 'E'
+            else:
+                return 'W'
+
 
     if case != 0:
         if case == 1 or case == 3: #moving down to the right, we previously saw a pit and moved backwards ( indicated by case), now we continue east
             case = 5
+            cases.append(case)
             return 'E'
         
         if case == 2 or case == 4: #moving down to the left, we saw a pit, moved backwards (case), and now we continue west
             case = 5
+            cases.append(case)
             return 'W'
 
         if case == 5: #if we just dodged a pit, we want to ignore it because we may see it again
             case = 0
+            cases.append(case)
             if north == True:
                 return 'N'
             else:
@@ -421,10 +475,12 @@ def pit(percepts):
 
         if east == True:
             case = 1
+            cases.append(case)
             north = True
             return 'N'
         if east == False:
             case = 2
+            cases.append(case)
             north = True
             return 'N'
 
@@ -433,10 +489,12 @@ def pit(percepts):
 
         if east == True:
             case = 3
+            cases.append(case)
             north = False
             return 'S'
         if east == False:
             case = 4
+            cases.append(case)
             north = False
             return 'S'
 
@@ -447,12 +505,31 @@ def pit(percepts):
 
 
 #In the case of a wumpus, mmain movement function sends us here in order to try and kill it. Based on the current movement, it shoots in the two squares that the wumpus could possibly be in
-def wumpus():
+def wumpus(percepts):
     #count = randint(0,3)
     global numArrows
     global north
     global east
     global case
+    perceptList = percepts
+    stuck = 0
+
+
+    if len(cases) > 21: 
+        for x in range(cases[-20], cases[-1]):
+            if x == 20:
+                stuck = stuck + 1
+            if stuck > 10:
+                cases.clear()
+                stuck = 0
+                if random.randint(0,10) < 5:
+                    return 'E'
+                else:
+                    return 'W'    
+
+
+
+
 
 
     if numArrows == 0: #if we are out of arrows, just keep moving and hope for the best
@@ -462,6 +539,12 @@ def wumpus():
         else:
             case = 0
             return 'N'
+
+    if 'U' in perceptList: #If there is also an edge, just continue moving
+        if east == True:
+            return 'E'
+        else:
+            return 'W'
 
 
     if case == 20: #if we are dealing with a case where we just shot once...
