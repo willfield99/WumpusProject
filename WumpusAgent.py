@@ -57,7 +57,6 @@ moves = [''] #list of all made moves by the agent- first item is null so that ge
 
 north = False #global variable for telling if we are moving north, or south 0 - Moving South, 1 - Moving North
 east = True #Global variables for telling if we are moving east, or west: 0 - moving west, 1 - moving east
-breaker = 0 #used to break infinite loops
 prev = ['X', 'X', 'X']
 case = 0
 shootcount = 0
@@ -65,8 +64,11 @@ possiblecorner = False #used to check if we have reached a coerner of the cave. 
 
 
 
-#sets the type of wumpi (moving/stationary), # of arrows, and # of wumpi: used for re-setting the game in the driver code
+#sets the type of wumpi (moving/stationary), # of arrows, and # of wumpi
 def setParams(type, arrows, wumpi):
+    global gameType
+    global numArrows
+    global numWumpi
 
     try: #Should check to make sure that the inputs for the parameters are valid (integers), turns out Alan took care of the int() 
         gameType = int(type)
@@ -193,6 +195,7 @@ def getMove(sensor):
     global east
     global moves
     global prev
+    global case
     #global map
     
     #print(currentRoom)
@@ -202,22 +205,32 @@ def getMove(sensor):
     #currentRoom = room
     #print(currentRoom)#printing the room that we are in- this line is just for testing purposes
 
+
+    if case == 99: #if we have found the gold, we need to escape
+        return escape(percepts)
+
     if 'G' in percepts:   
          #escape() #escape does nothing rn
          prev.append('G')
-         return 'G'
+         return 0 #to stop and at least show we are here
     
+    if case == 20:
+        return wumpus()
+
     if 'S' in percepts:  
         #if there is a wumpus in an adjacent square
         prev.append('S')
-        return wumpus(numArrows)
+        return wumpus()
         
 
     if 'C' in percepts:  
+        print("C in percepts")
         shootcount = 0
         prev.append('C')
-        return 'SW'
-
+        if north == False:
+            return 'S'
+        else:
+            return 'N'
     
    # if 'B' in percepts and 'U' in percepts: #if we are at a pit and an edge at the same time
    #     prev.append('B')
@@ -227,10 +240,12 @@ def getMove(sensor):
        return pit(percepts)
         
     if 'B' in percepts:#If the current percept is a pit
+        print("B in percepts")
         prev.append('B')
         return pit(percepts) 
 
     if 'U' in percepts: 
+        print("U in percepts")
         prev.append('U')
         return edge(percepts) 
 
@@ -269,8 +284,11 @@ def getMove(sensor):
 def foundGold(p, percepts): 
     currentPercept = p
     perceptList = percepts
+    global case
 
-    return 0
+    case = 99 #case for if we have the gold, signaling that we need to escape
+
+    return 'G'
 
 
 
@@ -312,11 +330,11 @@ def edge(percepts):
     if prev[-1] == 'U' and prev[-2] == 'O' and prev[-3] == 'U' and prev[-4] == 'O' or prev[-1] == 'U' and prev[-2] == 'U' and prev[-3] == 'U':
         if east == True:
             east = False
-            prev.append('X') #in case it would see the U,U,U again, we add an x so prev[-1] is equal to x to stop this
+            print("hereeeeeeeee")
             return 'W'
         if east == False:
             east = True
-            prev.append('X')
+           # prev.append('X')
             return 'E'
 
 
@@ -428,36 +446,73 @@ def pit(percepts):
 
 
 
-#In the case of a wumpus, mmain movement function sends us here in order to try and kill it. It chooses a random direction to shoot in
-def wumpus(numArrow):
-    count = randint(0,3)
+#In the case of a wumpus, mmain movement function sends us here in order to try and kill it. Based on the current movement, it shoots in the two squares that the wumpus could possibly be in
+def wumpus():
+    #count = randint(0,3)
     global numArrows
-    
-    if numArrows > 0 and count == 0:
-        numArrows = numArrows- 1
-        return('SN')
-    if numArrows > 0 and count == 1:
-        numArrows = numArrows- 1
-        return('SE')
-    if numArrows > 0 and count == 2:
-        numArrows = numArrows- 1
-        return('SS')
-    if numArrows > 0 and count == 3:
-        numArrows = numArrows- 1
-        return('SW')
-    else:
-        if north == True:
-             return 'N'
+    global north
+    global east
+    global case
+
+
+    if numArrows == 0: #if we are out of arrows, just keep moving and hope for the best
+        if north == False:
+            case = 0
+            return 'S'
         else:
-            return 'S' #temporary
+            case = 0
+            return 'N'
+
+
+    if case == 20: #if we are dealing with a case where we just shot once...
+        if north == True:
+            case = 0
+            numArrows = numArrows - 1
+            return "SN" #finish off the second possible wumpus with the second shot
+        else:
+            case = 0
+            numArrows = numArrows - 1
+            return 'SS'
+
+
+    if east == True: #if we are moving to the right
+        case = 20 #case for if we need to shoot another arrow up/down next turn
+        numArrows = numArrows - 1
+        return 'SE' #shoot to the right
+
+    if east == False: #or if we are moving to the left
+        case = 20 #case for if we need to shoot another arrow up/down next turn
+        numArrows = numArrows - 1
+        return 'SW' #shoot to the left
+
+
+
+    # if numArrows > 0 and count == 0:
+    #     numArrows = numArrows- 1
+    #     return('SN')
+    # if numArrows > 0 and count == 1:
+    #     numArrows = numArrows- 1
+    #     return('SE')
+    # if numArrows > 0 and count == 2:
+    #     numArrows = numArrows- 1
+    #     return('SS')
+    # if numArrows > 0 and count == 3:
+    #     numArrows = numArrows- 1
+    #     return('SW')
+    # else:
+    #     if north == True:
+    #          return 'N'
+    #     else:
+    #         return 'S' #temporary
         #return 'G' causes an infinite loop because we don't move, changed it to 'S' temporarily
     
     
 
 
-def escape():
+def escape(percepts):
+    perceptList = percepts #list of percepts for deciding what to do once we are here. You could call any function from here.
     #s = map[(currentRoom.getX, currentRoom.getY -1)]
     #n = map[(currentRoom.getX, currentRoom.getY +1)]
     #w = map[(currentRoom.getX +1, currentRoom.getY)]
     #e = map[(currentRoom.getX +1, currentRoom.getY)]
-    return 'N'
+    return 0 #temporary, will count as invalid percept but at least we know we got the gold
