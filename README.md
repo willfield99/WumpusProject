@@ -1,7 +1,7 @@
 # WumpusProject
 
 
-This project is an AI implementation of the classic [Hunt the Wumpus] "https://en.wikipedia.org/wiki/Hunt_the_Wumpus" Game.
+This project is an AI implementation of the classic [Hunt the Wumpus] (https://en.wikipedia.org/wiki/Hunt_the_Wumpus) Game.
 
  It is written in python and will require python 3 to run. To run it run the driver with 
  
